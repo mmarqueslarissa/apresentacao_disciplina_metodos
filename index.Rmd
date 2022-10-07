@@ -1,0 +1,613 @@
+---
+title: "Gênero faz diferença?"
+subtitle: "uma análise das atitudes das eleitoras brasileiras"
+abstract: "Este trabalho se refere ao gap de gênero nas atitudes políticas no Brasil no ano de 2018. Um conjunto diferente de padrões de socialização experimentados por homens e mulheres podem influenciar de forma diferenciada os valores centrais, as orientações políticas e o comportamento. Diante disto, um fator individual, como o sexo, impacta as atitudes políticas no Brasil? Se sim, em quais dimensões? O objetivo do trabalho é averiguar como uma mesma atitude política pode se manifestar de diferentes maneiras a partir do gênero. Para tanto, é desenvolvido testes de deferenças de médias de dois ou mais grupos. Os dados para a análise são do projeto A cara da democracia. Foram selecionadas perguntas que permitam operacionalizar atitudes políticas como o interesse por política e ideologia. Os resultados indicam que apenas as médias de interesse por política apresentaram diferença significante entras mulheres e os homens. Além disso, mulheres de alta escolaridade possuem o mesmo interesse por política do que os homens."
+author: "Larissa Martins Marques"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 6    
+    toc_float:
+      collapsed: yes
+    code_folding: hide #não mostre meus codigos - é opcional p/ o usuário #hide/show
+    fig_caption: yes #configuracao de figura - legenda
+    fig_height: 10 #configuracao de figura - altura
+    fig_width: 14 #configuracao de figura - largura
+    highlight: tango #Tango, pygments, kate, monochrome, espresso, zenburn, haddock, breezedark, e textmate.
+    theme: journal #cerulean, journal, flatly, darkly, readable, spacelab, united, cosmo, lumen, paper
+bibliography: bib.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## Abrir os pacotes
+pacman::p_load(tidyverse, infer, dabestr, rio, car, rstatix, kableExtra)
+
+## Abrir as bases 
+
+data_2018_a <- import("~/apresentacao_disciplina_metodos/dados/2018_onda_a_estudo_painel_eleitoral_brasileiro.sav") 
+
+```
+
+```{r, set theme}
+
+tema <- ggthemes::theme_fivethirtyeight() +
+  theme(legend.title = element_text(family = "Times New Roman"), 
+        legend.position = "bottom",
+        title = element_text(size = 10),
+        axis.title.y = element_text(size = 14, family = "Times New Roman"),
+        axis.text.y = element_text(size = 20, family = "Times New Roman"),
+        axis.text.x = element_text(size = 20, family = "Times New Roman"),
+        axis.title.x = element_text(size = 20,family = "Times New Roman"),
+        legend.text = element_text(size = 30, family = "Times New Roman"),
+        plot.caption = element_text(hjust = 0, size = 24, family = "Times New Roman" ),
+        panel.background = element_rect(fill = "white", colour = "white", color = "white"),
+        plot.background = element_rect(fill = "white", colour = "white", color = "white"),
+        legend.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "#eceff2", size = 0.8),
+        panel.grid.major.y = element_line(colour = "#eceff2", size = 0.8),
+        legend.key = element_rect(fill = "white", color = "white"),
+        strip.background = element_rect(fill = "white", colour = "white"), 
+        strip.text = element_text(size = 29, colour = "black", face = "bold", family = "Times New Roman"))
+
+ggplot2::theme_set(tema)
+
+```
+
+<style> body{line-height: 2}</style>
+
+<style> body {text-align: justify} </style> 
+
+# Introdução 
+
+<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; A corrente teórica que este relatório se vincula é aquela que se debruça a investigar como a vida social e os diferentes papéis atribuídos às mulheres e homens podem produzir diferenças e semelhanças nas atitudes e comportamentos políticos. Busca-se analisar a relação entre o gênero, escolaridade e as atitudes políticas femininas. O objetivo, então, é examinar a relação entre o gênero e atitudes políticas, como a ideologia e o interesse por política. Deste modo, o fator explicativo do relatório está centrado no nível individual.
+
+&nbsp;&nbsp;&nbsp;&nbsp; A análise toma como problema a estrutura tradicional de organização social e familiar que imputam às mulheres diferentes relações e funções sociais. Seria então, o gênero um fator determinante para a condução de comportamentos e atitudes políticas. Com isso, um conjunto distinto de padrões de socialização experimentados por homens e mulheres poderia influenciar de forma diferenciada os valores centrais, as orientações políticas e o comportamento [@Biroli_2016]. O intuito deste trabalho é refletir sobre a socialização feminina e as atitudes políticas de gênero.
+
+&nbsp;&nbsp;&nbsp;&nbsp; O ano de 2018 protagonizou o desenvolvimento de uma nítida clivagem de gênero quanto a escolha do futuro presidente. Ao analisar as eleições presidenciais passadas, mulheres pela primeira vez manifestaram uma ampla rejeição a um candidato específico comparado com os homens [@Nicolau_2020]. Essas diferenças de gênero não são encontradas apenas na escolha do representante, como também nos percentuais de presença feminina nos parlamentos, nas taxas de participação, na filiação partidária, na probabilidade de concorrer a cargos eletivos, assim como em valores e atitudes políticas.
+
+&nbsp;&nbsp;&nbsp;&nbsp; As origens e a magnitude do gap de gênero são motivos de agendas de pesquisa que datam maior aparição a partir dos anos 80. Estes trabalhos utilizam diferentes eixos argumentativos para elucidar as causas das distâncias atitudinais e comportamentais entre mulheres e homens. Embora sejam diversas as possibilidades de se estudar este fenômeno, para analisar as distâncias de gênero nas atitudes políticas no presente trabalho, foram abordadas duas teorias que tratam a composição dos seres humanos de acordo com o seu gênero. A primeira perspectiva teórica enfatiza as diferenças na socialização política de homens e mulheres que funcionam como moldadores de opiniões, atitudes e comportamentos políticos futuros dos indivíduos. A segunda aborda as mudanças decorrentes da inserção no mercado de trabalho remunerado na cultura política feminina.
+
+&nbsp;&nbsp;&nbsp;&nbsp; A tese psicológica destaca a importância da socialização na infância. Esta perspectiva interpreta o surgimento das diferenças de gênero como produto dos contextos de socialização que homens e mulheres experimentaram na infância e na adolescência. A gama de experimentações sociais, vinculadas às experiências de desigualdade e interconexão inerentes à relação entre os pais e filhos, são acumuladas até a vida adulta, onde conduzem a um conjunto de valores e opiniões que foram estruturados durante a infância [@Gilligan_1936].
+
+&nbsp;&nbsp;&nbsp;&nbsp; Não obstante, os efeitos provenientes do processo socialização na infância sofrem mediação da estrutura de papéis sociais atribuídos a homens e mulheres. Uma das chaves analíticas da teoria dos papéis para explicar as lacunas de gênero nas atitudes políticas se baseia nos papéis sociais de homens e mulheres [@Eagly_Diekman_2006]. @Diekman_Schneider_2010 em estudo que investiga a relação de papéis específicos dos indivíduos e atitudes políticas, argumentam que o conjunto de atitudes e comportamentos de uma pessoa funda-se a partir das expectativas sociais e normas que são geradas de acordo com o gênero, ou seja, existem papéis que são socialmente esperados e vinculados aos indivíduos de acordo com seu gênero. Para as autoras, estas expectativas pré-definidas levam os indivíduos a ficarem expostos a certas experiências próprias ligadas aos homens e as mulheres. Uma vez internalizadas pelos indivíduos, tais normas e expectativas são aplicadas em situações cotidianas e estão relacionadas a uma diversidade de preferências sociais capazes de diferenciar as atitudes de grupos.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Com isso, as lacunas de gênero em atitudes políticas são construídas em conformidade com os papéis sociais atribuídos aos homens e as mulheres. Nesta estrutura de papéis, para as mulheres, presume-se que estejam relacionados os aspectos voltados à esfera privada como a passividade e reprodução (Dantas-Berger e Giffin, 2005) assim como as tarefas do cuidado doméstico e familiar (Biroli, 2016; Diekman e Schneider, 2010). Enquanto que para os homens, é reservado às funções inerentes à esfera pública e o papel de provedor econômico [@Dantas_Berger_Giffin_2005]. Com base nestas funções, é possível enxergar o gênero como um atributo individual capaz de predizer comportamentos e atitudes a serem materializadas em sociedade.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Ambas as abordagens teóricas levam a esperar uma divergência entre os indivíduos em suas opiniões em detrimento da forma como se definem as relações de gênero ainda na infância e baseada em papéis. O gênero, funciona, então, como um atributo individual capaz de predizer comportamentos e atitudes a serem materializadas em sociedade. Deste modo, é razoável inferir que papéis e os estereótipos de gênero tenham a possibilidade de produzir atitudes políticas diferenciadas.
+
+&nbsp;&nbsp;&nbsp;&nbsp; Após realizar uma breve exposição dos diferentes aspectos que o curso da vida de homens e mulheres podem tomar, o objetivo deste trabalho consiste em investigar nas dimensões de ideologia e interesse por política se é possível observar as lacunas de gênero. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; Além dessa introdução o relatório conta com seções de metodologia, análises dos dados e considerações finais. 
+
+
+<br>
+
+# Metodologia 
+
+<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; Os dados provêm do projeto ["A cara da democracia"](https://www.institutodademocracia.org/a-cara-da-democracia), survey de circulação nacional que possui como objetivo capturar momentaneamente o que o brasileiro pensa sobre democracia e como constitui seu sistema de valores, crenças e atitudes políticas. O relatório compreende como recorte temporal o ano de 2018, primeiro ano em que se produziu dados para o Brasil.
+
+&nbsp;&nbsp;&nbsp;&nbsp; A metodologia do trabalho consiste em realizar testes estatísticos de comparação de médias entre e intra grupos. A seção de "análise"  apresenta os resultados em três dimensões: a de ideologia e a de interesse por política. Cada dimensão compreende dois momentos, no primeiro é investigado apenas os testes de médias entre os dois grupos, ou seja, as diferenças das médias dos homens e das mulheres. No segundo momento, são analisadas as diferenças intra grupos quando se observa as diferenças internas ao grupo feminino. O objetivo é investigar se as mulheres divergem, em média, de acordo com o nível de escolaridade.
+<br><br>
+Para isso, a escolaridade foi dividida em três categorias:
+
+<br>
+- mulheres 
+<br>
+
+  * alta escolaridade [^1]
+  
+  * média escolaridade [^2]
+  
+  * baixa escolaridade [^3]
+  
+<br>
+- homens (todas as escolaridades)
+
+<br>
+
+## Teste de médias e medianas
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp; O teste selecionado para desenvolver a análise foi o Teste T. Os pressupostos deste teste exigem normalidade na distribuição dos dados e homogeneidade das variâncias dos grupos. Quando esses pressupotos não foram ser atendidos, foi utilizado o pacote estatístico [infer](https://infer.netlify.app/) que possui tratamento dos dados via Bootstrap e possibilidade de se realizar o cálculo para variâncias não homogêneas. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; Para a análise das atitudes intra grupos, foi adotado o teste de Kruskal-Wallis. 
+
+<br>
+
+## As variáveis 
+
+<br/> 
+ 
+- **Independente**: Gênero. 
+
+- **Dependentes**: Ideologia; Interesse por política.
+
+<br>
+
+## Hipóteses
+<br>
+**As hipóteses da primeira dimensão são:**
+
+H1: mulheres divergem, em média, da ideologia dos homens;
+
+**As hipóteses da segunda dimensão são:**
+
+H1: mulheres manifestam menor interesse por política do que os homens;
+
+H1: mulheres com alta escolaridade vão manifestar maior interesse por política do que mulheres com baixa escolaridade;
+
+H1: mulheres com alta escolaridade possuem menor interesse por política do que os homens. 
+
+<br><br>
+
+# Análises
+
+<br><br>
+
+## Ideologia
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; Essa dimensão mensura a ideologia do entrevistado a partir de um autoposicionamento ideológico em uma escala númerica contínua de 1 a 10. A localização 1 indica extrema esquerda enquanto a posição 10 indica a extrema direita. 
+
+O que se pretende responder é: o gênero faz diferença na hora de se posicionar na escala ideológica de esquerda e direita?
+
+### O banco 
+<br>
+
+A seguir algumas informações sobre os dados de gênero e ideologia
+
+```{r, tabela 1}
+
+tabela_1 <- data_2018_a %>% 
+  filter(ed <=10) %>% 
+  select(ed, sexo) %>% 
+  group_by(sexo, ed) %>%
+  summarise(Total_casos_sexo_ideologia = n()) %>% 
+  ungroup() %>% 
+  mutate(N = sum(Total_casos_sexo_ideologia),
+         sexo = case_when(sexo == 1 ~ "Homem", 
+                          sexo == 2 ~ "Mulher"))
+tabela_1 %>% 
+  kbl() %>% 
+  kable_material(c("striped")) %>% 
+  scroll_box(width = "1000px", height = "300px")
+
+```
+
+<br><br>
+
+### A distribuição
+
+```{r, ideologia dist}
+# visualizar a distribuicão da ideologia de acordo com o gênero
+
+ideo_data_2018_a <- data_2018_a %>% 
+  drop_na(c(ed, sexo)) %>% # retira os NA 
+  filter(ed<=10) # filtra apenas os valores de interesse 
+  # 
+ideo_data_2018_a %>% 
+  mutate(sexo = case_when(sexo == 1 ~ "Homem", 
+                          sexo == 2 ~ "Mulher")) %>%  # altera rótulo das variáveis
+    ggplot(aes(x=ed, fill = as_factor(sexo), col = as_factor(sexo), group = as_factor(sexo)))+
+  geom_density(color=NA, alpha = 0.5)+
+  geom_vline(data=. %>% group_by(sexo) %>% summarise(media=mean(ed,na.rm = T)),
+             size=2, aes(xintercept=media,color=sexo), show.legend = F) +
+  scale_x_continuous(breaks = c(1:10))+
+  tema+
+  labs(x= NULL, y=NULL, fill = NULL, col = NULL, group = NULL)
+
+```
+
+<br>
+
+### Teste de normalidade 
+<br>
+
+Uma segunda alternativa de se verificar a normalidade dos dados é com o teste estatístico de normalidade 
+
+No programa R é feita pela função "shapiro_test()"
+
+  H1 - a distribuição dos dados é diferente da normal
+
+<br>
+
+```{r ideo normalidade}
+ideo_data_2018_a %>% shapiro_test(ed, sexo) 
+```
+
+<br>
+
+### Homogeneidade das variâncias
+<br>
+
+ H0: Os grupos possuem a mesma variância
+ 
+ H1: As variâncias dos grupos não são homogenas -> p<= 0.05
+ 
+<br>
+
+```{r}
+# Teste feito com o pacote car 
+
+leveneTest(
+  y = ideo_data_2018_a$ed, 
+  group = ideo_data_2018_a$sexo
+) 
+
+```
+
+A partir da análise do p-valor, considera-se que as variâncias dos grupos são homogêneas. 
+
+<br>
+
+### Test-T 
+
+<br>
+```{r test t ideo}
+ideo_data_2018_a %>%
+infer::t_test(formula = ed ~ sexo, var.equal = TRUE)
+```
+
+A partir do resultado do Test T é possível dizer que se aceita H0. Dito de outra maneira, o gênero não fez diferença no posicionamento ideológico no ano de 2018. 
+
+<br>
+
+### Graficando 
+
+<br>
+
+```{r}
+# graficando as médias de 
+
+ggplot(data = ideo_data_2018_a %>%
+         drop_na(ed),
+       mapping = aes(y = ed, x = sexo)) +
+  geom_dotplot(binaxis = "y", stackdir = "center",
+               fill="#D8D8D8", color="#D8D8D8", dotsize = 0.8) +
+  geom_point(stat = "summary", fun = "mean", size = 2) +
+  geom_errorbar(stat = "summary", fun.data = "mean_se", width = 0.1) +
+  labs(y="ideologia", x= "gênero") +
+  scale_y_continuous(limits=c(0,10), expand = c(0,0)) 
+
+```
+
+<br><br>
+
+
+### Diferenças internas as mulheres de acordo com a escolaridade
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; Esta segunda etapa possui o objetivo de analisar comparativamente como as mulheres se diferenciam ou se assemelham de acordo com a escolaridade. Além disso, investiga se as mulheres dos diferentes graus de escolaridade divergem dos homens.
+
+<br>
+
+Neste momento, a questão que se procura responder é se as mulheres são mais diferentes entre elas ou entre elas e os homens?
+
+
+
+```{r}
+# criar uma variável com os três grupos
+
+data_2018_escolaridade <- data_2018_a %>% 
+  select(sexo, esc, ed) %>% 
+  filter(sexo == c(1,2), 
+         ed<= 10, 
+         esc <= 10) %>% 
+  drop_na() %>%
+  mutate(grupo_escolaridade = ifelse(sexo == 2 & esc %in% c(1:3), "Mulher baixa escolaridade",
+                                     ifelse(sexo == 2 & esc %in% c(4:7), "Mulher média escolaridade", 
+                                            ifelse(sexo == 2 & esc %in% c(8:10), "Mulher alta escolaridade",
+                                                   ifelse(sexo == 1 & esc %in% c(1:10), "Homem todas as escolaridades", sexo)))))
+  
+
+# testar os pressupostos - normalidade
+
+data_2018_escolaridade %>% 
+  group_by(grupo_escolaridade) %>% 
+  shapiro_test(ed)  # p < 0.05 = distribuicão dos dados não normais 
+ 
+
+# testar os pressupostos - homogeneidade das variâncias
+
+leveneTest(ed ~ grupo_escolaridade, data_2018_escolaridade) # p > 0.05 = variancias são homogeneas
+
+# preciso usar o teste para dados não paramétricos - Kruskal - Wallis
+
+```
+
+<br>
+
+### Kruskal-Wallis
+<br>
+
+A escolha deste teste acontece pois os dados não atendem aos pressupostos da ANOVA. 
+
+
+```{r}
+
+kruskal.test(ed ~ grupo_escolaridade, data = data_2018_escolaridade)
+
+```
+
+<br>
+
+A analise do teste de Kruskal-Wallis permite concluir que as medianas dos grupos são iguais. Ou seja, não há diferenças no posicionamento ideológico de mulheres e homens significantes. 
+
+<br>
+
+
+
+## Interesse por política
+<br>
+
+Essa dimensão mensura o grau de interesse por política do entrevistado. 
+
+A pergunta é feita da seguinte maneira:
+
+Quanto o(a) sr(a) se interessa por política? O(a) sr(a) diria que é:
+
+1. Muito interessado,
+2. Interessado,
+3. Pouco interessado, ou
+4. Nada Interessado.
+
+No presente trabalho, para fins metodológicos as categorias (1-4) são tratas como númericas.
+
+### O banco
+<br>
+
+A seguir algumas informações sobre os dados de gênero e interesse por política
+
+```{r}
+
+tabela_2 <- data_2018_a %>% 
+  filter(interesse <=4) %>% 
+  select(interesse, sexo) %>% 
+  group_by(sexo, interesse) %>%
+  summarise(Total_casos_sexo_interesse = n()) %>% 
+  ungroup() %>% 
+  mutate(N = sum(Total_casos_sexo_interesse),
+         sexo = case_when(sexo == 1 ~ "Homem", 
+                          sexo == 2 ~ "Mulher"), 
+          interesse= case_when(interesse== 1 ~ "Muito interessado",
+                                                 interesse== 2 ~ "Interessado",
+                                                 interesse== 3 ~ "Pouco interessado",
+                                                 interesse== 4 ~ "Nada Interessado"))
+tabela_2 %>% 
+  kbl() %>% 
+  kable_material(c("striped")) %>% 
+  scroll_box(width = "1000px", height = "300px")
+
+```
+
+<br>
+
+### A distribuição
+
+```{r interesse dist}
+data_2018_interesse <- data_2018_a %>% 
+  drop_na(c(interesse, sexo)) %>% # retira os NA 
+  filter(interesse<=4) # filtra apenas os valores de interesse 
+  
+
+data_2018_interesse %>% 
+  mutate(sexo = case_when(sexo == 1 ~ "Homem", 
+                          sexo == 2 ~ "Mulher")) %>% # altera rótulo das variáveis
+    ggplot(aes(x=interesse, fill = as_factor(sexo), col = as_factor(sexo), group = as_factor(sexo)))+
+  geom_density(color=NA, alpha = 0.5)+
+  geom_vline(data=. %>% group_by(sexo) %>% summarise(media=mean(interesse,na.rm = T)),
+             size=2, aes(xintercept=media,color=sexo), show.legend = F) +
+  scale_x_continuous(breaks = c(1:10))+
+  tema+
+  labs(x= NULL, y=NULL, fill = NULL, col = NULL, group = NULL)
+
+```
+
+<br>
+
+### Teste de normalidade 
+
+<br>
+
+```{r}
+data_2018_interesse %>% 
+  shapiro_test(interesse,sexo)
+```
+<br>
+
+O shapiro teste reportou a não normalidade da distribuição dos dados. Logo, é preciso a adequar o Teste T. 
+
+### Homogeneidade das variâncias 
+
+<br>
+```{r}
+leveneTest(y = data_2018_interesse$interesse, 
+  group = data_2018_interesse$sexo)
+```
+<br>
+
+As variâncias são homogeneas. 
+
+
+### Teste T 
+
+<br>
+```{r}
+data_2018_interesse %>% infer::t_test(interesse ~ sexo)
+```
+<br>
+
+O Teste T apresenta uma diferença significante entre as médias dos grupos. Nesse caso, a média de interesse por política das mulheres é diferente da média de interesse por política dos homens. 
+
+Com esses resultados, torna-se interessante visualizar a distribuição das diferenças das médias. Gráfico que pode ser encontrado ao final dessa seção. 
+
+### Graficando 
+
+<br>
+```{r}
+ggplot(data = data_2018_interesse %>%
+         mutate(sexo = case_when(sexo == 1 ~ "Homem", 
+                          sexo == 2 ~ "Mulher")) %>%
+         drop_na(interesse),
+       mapping = aes(y = interesse, x = sexo)) +
+  geom_dotplot(binaxis = "y", stackdir = "center",
+               fill="#D8D8D8", color="#D8D8D8", dotsize = 0.8) +
+  geom_point(stat = "summary", fun = "mean", size = 2) +
+  geom_errorbar(stat = "summary", fun.data = "mean_se", width = 0.1) +
+  labs(y="interesse", x= "gênero") +
+  scale_y_continuous(limits=c(0,4), expand = c(0,0)) 
+```
+<br>
+
+
+### Diferenças internas as mulheres de acordo com a escolaridade
+
+
+
+```{r}
+# criar uma variável com os três grupos
+
+data_2018_escolaridade_interesse <- data_2018_a %>% 
+  select(sexo, esc, interesse) %>% 
+  filter(sexo == c(1,2), 
+         interesse <= 4, 
+         esc <= 10) %>% 
+  drop_na() %>%
+  mutate(grupo_escolaridade = ifelse(sexo == 2 & esc %in% c(1:3), "Mulher baixa escolaridade",
+                                     ifelse(sexo == 2 & esc %in% c(4:7), "Mulher média escolaridade", 
+                                            ifelse(sexo == 2 & esc %in% c(8:10), "Mulher alta escolaridade",
+                                                   ifelse(sexo == 1 & esc %in% c(1:10), "Homem todas as escolaridades", sexo)))))
+  
+
+# testar os pressupostos - normalidade
+
+data_2018_escolaridade_interesse %>% 
+  group_by(grupo_escolaridade) %>% 
+  shapiro_test(interesse)  # p > 0.05 = distribuicão dos dados são normais 
+ 
+
+# testar os pressupostos - homogeneidade das variâncias
+
+leveneTest(interesse ~ grupo_escolaridade, 
+           data_2018_escolaridade_interesse, 
+           center = mean) # p > 0.05 = variancias são homogeneas
+
+# preciso usar o teste para dados não paramétricos - Kruskal - Wallis
+
+```
+Os dados são normais, porém as variâncias não são homogêneas, por este motivo será realizado o teste de Kruskal Wallis. 
+
+<br>
+
+### Teste de Kruskal Wallis
+<br>
+
+Neste momento se investiga o intersse por política entre as mulheres com diferentes níveis de escolaridade e com os homens. 
+
+
+```{r}
+
+kruskal.test(interesse ~ grupo_escolaridade, 
+             data = data_2018_escolaridade_interesse)
+
+```
+ 
+O teste reporta que pelo menos uma das medianas dos grupos são diferentes. Porém, ainda não é possível saber qual dos grupos que são diferentes. Por este motivo, foi feito o teste post hoc de Dunn.
+   
+
+<br>
+
+### Post hoc teste Dunn
+<br>
+
+Este teste foi realizado com o ajuste de bonferroni.
+
+```{r}
+
+dunn_test(interesse ~ grupo_escolaridade, data = data_2018_escolaridade_interesse, 
+          p.adjust.method = "bonferroni")
+
+```
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; Os resultados deste testes foram interpretados a partir do p-valor ajustado que só não reportou diferença estatística significante entre as mulheres de alta escolaridade e os homens e as mulheres de baixa escolaridade e as mulheres de média escolaridade. Esses resultados podem sugerir a escolaridade alta é um atributo individual capaz de aproximar as posições femininas quanto ao interesse por política das posições masculinas.    
+
+<br>
+
+Além desses testes, também foi desenvolvido um passo no relatório que passou por um tratamento automático de Bootstrap. Para isso foi utilizado as funções do pacote [dabestr](https://cran.r-project.org/web/packages/dabestr/vignettes/using-dabestr.html)
+
+
+<br>
+```{r}
+
+two.group.unpaired <- 
+  data_2018_escolaridade_interesse %>%
+  dabest(grupo_escolaridade, interesse, 
+         # The idx below passes "Control" as the control group, 
+         # and "Group1" as the test group. The mean difference
+         # will be computed as mean(Group1) - mean(Control1).
+         idx = c("Homem todas as escolaridades", "Mulher alta escolaridade",
+                 "Mulher baixa escolaridade", "Mulher média escolaridade"), 
+         paired = FALSE)
+
+two.group.unpaired 
+
+```
+
+
+
+```{r}
+two.group.unpaired.meandiff <- mean_diff(two.group.unpaired)
+
+two.group.unpaired.meandiff
+```
+
+<br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; É possível observar que não há alterações significantes quanto aos resultados dos testes mesmo após os tratamentos de normalização dos dados.
+
+&nbsp;&nbsp;&nbsp;&nbsp; A figura abaixo é uma representação gráfica das comparações feitas anteriormente. Nela é apresentado todos os valores observáveis na amostra além de exibir a distribuição das deferenças de médias.   
+
+### Graficando com dabestr
+
+```{r}
+
+plot(two.group.unpaired.meandiff)
+
+```
+
+<br>
+
+
+<br><br>
+
+# Considerações finais
+
+<br><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp; O presente relatório teve como objetivo analisar como a variável gênero interage com as atitudes políticas. Mais especificamente, as atitudes políticas selecionadas foram a ideologia e o interesse por política. Para a construção do problema de pesquisa o recorte bibliográfico buscou
+trazer a teoria psicológica e a teoria social como uma alternativa de abordar como as diferentes experimentações dos gêneros em contextos sociais e psicológicos de socialização podem resultar em processos sociais distintos, entre eles, as atitudes políticas. 
+
+&nbsp;&nbsp;&nbsp;&nbsp; A hipótse que levou em consideração o efeito entre a ideologia e o gênero não pode ser aceita. Nesse caso, aceitou-se a hipótese nula, ou seja, a igualdade do posicionamento ideológico médio de homens e mulheres. Já as hipóteses correlatas a relação de efeito entre interesse por política gênero foram aceitas na medida em que se observou diferença significante entre os dois grupos analisados. Foi encontrado diferença interna ao grupo das mulheres e diferença significante entre mulheres e homens.  
+
+&nbsp;&nbsp;&nbsp;&nbsp; Com estes resultados e com as técnicas estatísticas até aqui empregadas, não é possível atribuir causalidade entre as relações observadas. Com isso, os próximos passos serão destinados a investigar outras relações a partir de análises multivarias e técinas de regressão estatísticas apropridas as variáveis. 
+
+
+
+<br><br>
+
+[^1]: Analfabeto ou Nunca frequentou escola / até 3ª serie do ensino fundamental / 4ª.serie do ensino fundamental.
+[^2]: até 7ª série do ensino fundamental / 8ª série do ensino fundamental / até 2ª série do ensino médio / 3ª série do ensino médio.
+[^3]: técnico após ensino médio / Ensino universitário completo / Pós-graduação ou mais.
+
+# Referências
+
+<br><br>
